@@ -7,27 +7,36 @@ import SessionControler from './app/controllers/SessionController';
 import FileController from './app/controllers/FileController';
 import ProviderController from './app/controllers/ProviderController';
 import AppointmentController from './app/controllers/AppointmentController';
-
-import authMiddlewares from './app/middlewares/auth';
 import ScheduleController from './app/controllers/ScheduleController';
 import NotificationController from './app/controllers/NotificationController';
 import AvailableController from './app/controllers/AvailableController';
 
+import validateUserStore from './app/validators/UserStore';
+import validateUserUpdate from './app/validators/UserUpdate';
+import validateSessionStore from './app/validators/SessionStore';
+import validateAppointmentStore from './app/validators/AppointmentStore';
+
+import authMiddlewares from './app/middlewares/auth';
+
 const routes = new Router();
 const upload = multer(multerConfig);
 
-routes.post('/users', UserControler.store);
-routes.post('/sessions', SessionControler.store);
+routes.post('/users', validateUserStore, UserControler.store);
+routes.post('/sessions', validateSessionStore, SessionControler.store);
 
 routes.use(authMiddlewares);
 
-routes.put('/users', UserControler.update);
+routes.put('/users', validateUserUpdate, UserControler.update);
 
 routes.get('/providers', ProviderController.index);
 routes.get('/providers/:providerId/available', AvailableController.index);
 
 routes.get('/appointments', AppointmentController.index);
-routes.post('/appointments', AppointmentController.store);
+routes.post(
+  '/appointments',
+  validateAppointmentStore,
+  AppointmentController.store
+);
 routes.delete('/appointments/:id', AppointmentController.delete);
 
 routes.get('/schedule', ScheduleController.index);
